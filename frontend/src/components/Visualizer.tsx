@@ -12,9 +12,11 @@ export const Visualizer: React.FC<Props> = ({ audioElement, isPlaying, mode }) =
   const analyserRef = useRef<AnalyserNode | null>(null);
   const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
   const requestRef = useRef<number | undefined>(undefined);
+  const initializedRef = useRef(false);
 
   useEffect(() => {
-    if (!audioElement) return;
+    if (!audioElement || initializedRef.current) return;
+    initializedRef.current = true;
 
     // Initialize Audio Context singleton
     if (!audioContextRef.current) {
@@ -34,22 +36,25 @@ export const Visualizer: React.FC<Props> = ({ audioElement, isPlaying, mode }) =
 
     const analyser = analyserRef.current;
 
-    // Connect Source
+    // Connect source (only once, bound to the audio element, not src)
     if (!sourceRef.current) {
        try {
          sourceRef.current = audioCtx.createMediaElementSource(audioElement);
          sourceRef.current.connect(analyser);
          analyser.connect(audioCtx.destination);
        } catch (e) {
-         // Already connected
          console.warn("Audio source already connected", e);
        }
     }
+  }, [audioElement]);
 
-    if (isPlaying && audioCtx.state === 'suspended') {
-      audioCtx.resume();
+  useEffect(() => {
+    if (!audioContextRef.current) return;
+    
+    if (isPlaying && audioContextRef.current.state === 'suspended') {
+      audioContextRef.current.resume();
     }
-  }, [audioElement, isPlaying]);
+  }, [isPlaying]);
 
   useEffect(() => {
     if (!isPlaying || !analyserRef.current) {

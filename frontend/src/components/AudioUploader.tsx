@@ -1,16 +1,16 @@
 import React, { useRef } from 'react';
 
 interface Props {
-  onFileSelect: (file: File) => void;
+  onFileSelect: (files: File[]) => void;
 }
 
 export const AudioUploader: React.FC<Props> = ({ onFileSelect }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      onFileSelect(file);
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      onFileSelect(Array.from(files));
     }
   };
 
@@ -22,6 +22,7 @@ export const AudioUploader: React.FC<Props> = ({ onFileSelect }) => {
         ref={fileInputRef}
         onChange={handleFileChange}
         accept="audio/mp3,audio/*"
+        multiple
         className="hidden"
       />
       <div className="w-16 h-16 mb-4 text-gray-500 group-hover:text-blue-500 transition-colors">
@@ -29,7 +30,7 @@ export const AudioUploader: React.FC<Props> = ({ onFileSelect }) => {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
         </svg>
       </div>
-      <p className="text-lg font-medium text-gray-300 group-hover:text-blue-400">点击上传音频文件 (MP3)</p>
+      <p className="text-lg font-medium text-gray-300 group-hover:text-blue-400">点击上传音频文件 (可多选)</p>
       <p className="text-sm text-gray-500 mt-2">支持 MP3, WAV, OGG 格式</p>
     </div>
   );
